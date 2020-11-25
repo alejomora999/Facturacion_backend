@@ -1,9 +1,9 @@
 const oracledb = require('oracledb');
 
 cns = {
-    user: "BD",
-    password: "3887",
-    connectString: "172.17.0.2/ORCLCDB"
+    user: "test",
+    password: "1234",
+    connectString: "172.17.0.2/ORCL18"
 }
 
 

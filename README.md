@@ -1,7 +1,5 @@
 # REST API utilizando Angular, Nodejs y Oracle 
-En este repositorio se alamacena el codigo utilizado en la Conferencia: "REST API" utilizando Nodejs como lenguaje Backend y Oracle como el gestor de Base de datos.
-
-Para testear el funcionamiento de la API se utilizara Insomnia (Pero se puede utilizar cualquier API Client). Se utilizara Angular como un cliente para poder consumir la API REST.
+En este repositorio se alamacena el codigo utilizado en la creacion del backend para el proyecto de facturacion Alejandro Morales
 
 
 ## Requerimientos
@@ -15,11 +13,14 @@ Para testear el funcionamiento de la API se utilizara Insomnia (Pero se puede ut
     ```console
     ~$ ng version
     ```
-* Oracle 11g o superior [Oracle 18c image Docker](https://hub.docker.com/r/ynraju4/oracle18c)
+* Oracle 11g o superior, con el id docker de 3b2c4d1882c2 con el comando sudo docker run -p 1521:1521 -it dockerhelp/docker-oracle-ee-18c bash [Oracle 18c image Docker](https://soajp.blogspot.com/2019/03/instalar-oracle-database-18c-con-docker.html)
     ```sql
     select * from v$version where banner like 'Oracle%';
     ```
     * Librerias necesarias para poder conectar Oracle con Nodejs.[Instanclient](https://www.oracle.com/database/technologies/instant-client/downloads.html)
+
+
+    
 
 
 ## Roadmap (Paso a paso)
@@ -32,3 +33,4 @@ Para testear el funcionamiento de la API se utilizara Insomnia (Pero se puede ut
 * #### Paso 6: Obtener informacion de la Base de datos.
 * #### Paso 7: Actualizar informacion de la Base de datos.
 * #### Paso 8: Borrar informacion de la Base de datos
+* #### Paso 9: Creacion de la funcion que retorna categoria y producto

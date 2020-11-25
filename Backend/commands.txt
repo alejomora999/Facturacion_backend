@@ -1,7 +1,7 @@
 
 //Crear variable de entorno
-export LD_LIBRARY_PATH=/opt/instantclient_18_5/
-
+//export LD_LIBRARY_PATH=/opt/instantclient_18_5/
+export LD_LIBRARY_PATH=/home/adminvoxoni/18_C/instantclient_18_5/
 //Visualizar Variable de entorno
 echo $LD_LIBRARY_PATH
 
