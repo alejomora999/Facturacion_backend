@@ -13,12 +13,14 @@ router.post('/revUsername', async (req, res) => { //post cifrar
         logins.push(productsSchema);
     })
     if (logins==1) {
-        res.json("Bienvendio Usuario");
+        res.json({message: "Bienvenido usuario", login: true});
     } else {
-        res.json("Usuario o Clave no correcta");
+        res.json({message: 'Usuario o contraseña erroneos', login: false});
     } 
 })
 
 
 
 module.exports = router;
+
+//id producto, cantidad de existencias, descripcion de entrada

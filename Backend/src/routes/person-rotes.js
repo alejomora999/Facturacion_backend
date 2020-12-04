@@ -64,6 +64,8 @@ router.post('/addProduct', async (req, res) => { //post cifrar
 
     res.json(products);
 })
+////insertar unidades a producto e inventario
+
 //INSERT CATEGORIA
 //CREATE
 
@@ -119,7 +121,56 @@ router.put("/updateProduct", async (req, res) => {
     })
 
 })
+router.put("/extension", async (req, res) => {
+    const { codigo,cantidad, descripcion } = req.body;
 
+    //sql = "update inventario set descripcion='Tres pc',  cantidad_disponible = (select (inventario.cantidad_disponible) + 2 from producto, inventario where inventario.id_producto=producto.id and producto.codigo='40C') where inventario.id_producto=(select producto.id from producto, inventario where inventario.id_producto=producto.id and producto.codigo='40C')";
+    sql ="select id from producto where codigo=:codigo";
+    
+    let id_producto=await BD.Open(sql, [codigo], false);
+    logins = [];
+    id_producto.rows.map(login => {//recorre cada objeto del arreglo
+        
+        let productsSchema = login[0];   
+        logins.push(productsSchema);
+    })
+    console.log(logins);
+    sql2 =`select inventario.cantidad_disponible  from producto, inventario where inventario.id_producto=${logins} and producto.codigo=:codigo`;
+    let cantidad_producto=await BD.Open(sql2, [codigo], false);
+    logins2 = [];
+    cantidad_producto.rows.map(login2 => {//recorre cada objeto del arreglo
+        
+        let productsSchema = login2[0];   
+        logins2.push(productsSchema);
+    })
+    console.log(logins2);
+    let numA =  parseInt(logins2);
+    let numB=parseInt(logins);
+    console.log(numA+numB);
+    let numC =parseInt(cantidad);
+    let numD = numA+numC;
+    console.log(numD);
+    console.log(numB);
+    let des =descripcion;
+    console.log(des);
+    sql3 =`update inventario set descripcion='${des}',  cantidad_disponible = ${numD} where id_producto=${numB}`;
+    console.log(sql3);
+    await BD.Open(sql3, [], false);
+    //sql = "select * from inventario";
+    //sql ="update inventario set cantidad_disponible=60 where id_producto=2";
+    try {
+        ///fdfdffddf
+      } catch (error) {
+        console.error(error);
+        // expected output: ReferenceError: nonExistentFunction is not defined
+        // Note - error messages will vary depending on browser
+      }
+    
+   // await BD.Open(sql, [codigo, cantidad,descripcion], true);
+
+    res.json({ "msg": "OK" })
+
+})
 
 //DELETE
 router.delete("/deleteProduct/:id_producto", async (req, res) => {
