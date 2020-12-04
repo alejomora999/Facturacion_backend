@@ -5,7 +5,8 @@ const app = express(); //instancia de express
 
 //imports
 const personRoutes = require('./routes/person-rotes');
-
+const FacturaRoutes = require('./routes/factura-rotes');
+const loginRoutes = require('./routes/login-rotes');
 //settings
 app.set('port', 3010);
 
@@ -16,6 +17,8 @@ app.use(express.urlencoded({ extended: false }));
 
 //routes
 app.use(personRoutes);
+app.use(FacturaRoutes);
+app.use(loginRoutes);
 
 
 

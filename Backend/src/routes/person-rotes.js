@@ -78,16 +78,6 @@ router.post('/addCategoria', async (req, res) => { //post cifrar
 
 
 const getObtener= async()=>{
-    
-
-    
-
-    /*res.status(200).json({
-        "nombre": nombre,
-        "descripcion": descripcion,
-        "precio_unidad": precio_unidad,
-        "id_categoria": id_categoria
-    })*/
    // sql2 = "select categoria.nombre from categoria,producto where producto.id_categoria=categoria.id_categoria and producto.state=1";
     //nombre,descripcion,precio_unidad,id_categoria
     sql2 = "select * from categoria";
@@ -99,7 +89,7 @@ const getObtener= async()=>{
             "id_categoria": producto[0],
             "nombre": producto[1],
             "descripcion": producto[2],
-            "iva": producto[3],
+            "iva": producto[3]
             //"precio_unidad": producto[3],
             //"id_categoria": producto[4]
         }
