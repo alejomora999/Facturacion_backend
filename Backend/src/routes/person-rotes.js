@@ -143,23 +143,18 @@ router.put("/extension", async (req, res) => {
         let productsSchema = login2[0];   
         logins2.push(productsSchema);
     })
-    console.log(logins2);
     let numA =  parseInt(logins2);
     let numB=parseInt(logins);
-    console.log(numA+numB);
     let numC =parseInt(cantidad);
     let numD = numA+numC;
-    console.log(numD);
-    console.log(numB);
     let des =descripcion;
-    console.log(des);
-    sql3 =`update inventario set descripcion='${des}',  cantidad_disponible = ${numD} where id_producto=${numB}`;
+    sql3 =`update inventario set cantidad_disponible=${numD},descripcion='${des}' where id_producto=${numB}`;
     console.log(sql3);
-    await BD.Open(sql3, [], false);
-    //sql = "select * from inventario";
-    //sql ="update inventario set cantidad_disponible=60 where id_producto=2";
+    sql5=sql3;
+
     try {
         ///fdfdffddf
+        await BD.Open(sql5, [], true);
       } catch (error) {
         console.error(error);
         // expected output: ReferenceError: nonExistentFunction is not defined
@@ -171,6 +166,11 @@ router.put("/extension", async (req, res) => {
     res.json({ "msg": "OK" })
 
 })
+////funcion nueva :V const getObtener= async()=>{
+async function addExistencia(cantidad,descripcion, codigo) {
+    sql ="update inventario set descripcion='Tres pc por proveedor',  cantidad_disponible = 63 where id_producto=2";
+}
+
 
 //DELETE
 router.delete("/deleteProduct/:id_producto", async (req, res) => {
