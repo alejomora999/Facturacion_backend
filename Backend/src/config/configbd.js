@@ -7,8 +7,14 @@ cns = {
 }
 
 
+cns_gcp = {
+    user: "hr",
+    password: "oracle",
+    connectString: "35.193.213.152/XEPDB1",
+}
+
 async function Open(sql, binds, autoCommit) {
-    let cnn = await oracledb.getConnection(cns);
+    let cnn = await oracledb.getConnection(cns_gcp);
     let result = await cnn.execute(sql, binds, { autoCommit });
     cnn.release();
     return result;
