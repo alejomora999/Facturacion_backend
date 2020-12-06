@@ -7,6 +7,7 @@ const app = express(); //instancia de express
 const personRoutes = require('./routes/person-rotes');
 const FacturaRoutes = require('./routes/factura-rotes');
 const loginRoutes = require('./routes/login-rotes');
+const productoRoutes = require('./routes/producto-route');
 //settings
 app.set('port', 3010);
 
@@ -19,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(personRoutes);
 app.use(FacturaRoutes);
 app.use(loginRoutes);
-
+app.use(productoRoutes);
 
 
 //run
