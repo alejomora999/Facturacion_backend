@@ -6,9 +6,9 @@ const { errorReturn } = require('./utils');
 
 // State es el valor para buscar productos activos o inactivos. Por defecto es 1 para buscar los productos activos
 const getAllProductosInventario = async (state=1) => {
-    const sql = "SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, p.codigo, i.cantidad_disponible "+ 
-        "FROM INVENTARIO i INNER JOIN PRODUCTO p ON i.ID_PRODUCTO = p.ID "+
-        "WHERE p.state=:state ";
+    const sql = `SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, p.codigo, i.cantidad_disponible  
+        FROM INVENTARIO i INNER JOIN PRODUCTO p ON i.ID_PRODUCTO = p.ID
+        WHERE p.state=:state ORDER BY p.id DESC`;
 
     const results = await BD.Open(sql, [state], false);
     
@@ -21,6 +21,7 @@ const getAllProductosInventario = async (state=1) => {
             "id_categoria": producto[4],
             "codigo": producto[5],
             "existencias": producto[6],
+            "estado": "Activo",
         }
 
     });
@@ -44,7 +45,7 @@ router.get(GETPRODUCTS, async (req, res) => { //get y post => nombre apellido js
 
 //CREATE producto
 router.post(CREATEPRODUCT, async (req, res) => { //post cifrar
-    const { nombre, descripcion, precio_unidad,id_categoria,codigo } = req.body;
+    const { nombre, descripcion, precio_unidad,id_categoria, codigo } = req.body;
     const sqlInsertProducto = `INSERT INTO producto(nombre,descripcion,precio_unidad,id_categoria,codigo)
         VALUES (:nombre,:descripcion,:precio_unidad,:id_categoria,:codigo) returning id
         INTO :productoId`;
@@ -65,7 +66,7 @@ router.post(CREATEPRODUCT, async (req, res) => { //post cifrar
         
         const productoId = insertedProduct.outBinds.productoId[0];
         await BD.Open(sqlInsertInventario, [productoId], true);
-        response = getAllProductosInventario();
+        response = await getAllProductosInventario();
     } catch(error) {
         response = errorReturn(CREATEPRODUCT, error);
     }
