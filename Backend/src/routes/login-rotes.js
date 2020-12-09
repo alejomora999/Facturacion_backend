@@ -130,6 +130,16 @@ router.post('/insertOperador',async (req,res)=>{
 router.post('/insertCliente',async (req,res)=>{
     const { nombres,apellidos,numero_identificacion,telefono,fecha_nacimiento } = req.body;
     try {
+        sql = "select count(*) from cliente, persona where cliente.id_persona=persona.id_persona and persona.numero_identificacion= :numero_identificacion";
+        let result = await BD.Open(sql, [numero_identificacion], false);
+        logins = [];
+        result.rows.map(login => {//recorre cada objeto del arreglo
+            let productsSchema = login[0];   
+            logins.push(productsSchema);
+        })
+        if (logins==1) {
+            res.json({message: "Cliente con ese número de identigicación Ya Existe"});
+        } else {
             sql2 = "insert into persona (nombres,apellidos,numero_identificacion,telefono,fecha_nacimiento) values (:nombres,:apellidos,:numero_identificacion,:telefono,TO_DATE(:fecha_nacimiento))";
             await BD.Open(sql2, [nombres,apellidos,numero_identificacion,telefono,fecha_nacimiento], true);
             sql3="select id_persona from persona where rownum=1 order by id_persona desc";
@@ -146,7 +156,7 @@ router.post('/insertCliente',async (req,res)=>{
             console.log(sql5);
             await BD.Open(sql5, [], true);
             res.json({message: "Cliente Creado"});
-        
+        }
       } catch (error) {
         console.error(error);
         // expected output: ReferenceError: nonExistentFunction is not defined
