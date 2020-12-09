@@ -133,7 +133,8 @@ router.delete("/disableFactura/:id_factura", async (req, res) => {
 })
 ///isnsertar factura
 router.post('/insertFactura',async (req,res)=>{
-    const { id_cliente, id_vendedor,codigo, prodcutos, fecha_registro,fecha_compra } = req.body;
+    const { id_cliente, id_vendedor,codigo, productos, fecha_registro,fecha_compra,tipo_pago } = req.body;
+    
     try {
         sql = "INSERT INTO pedido_cliente (numero_productos,id_cliente) values (0,:id_cliente)";
         await BD.Open(sql, [id_cliente], true);
@@ -146,7 +147,8 @@ router.post('/insertFactura',async (req,res)=>{
             pedido.push(productsSchema);
         })
         console.log(pedido);
-        sql3=`select persona.nombres||' '||persona.apellidos from persona,operador where  operador.id_persona=persona.id_persona and operador.id_persona=:id_vendedor`;
+        /*sql3=`select persona.nombres||' '||persona.apellidos from persona,operador 
+        where  operador.id_persona=persona.id_persona and operador.id_persona=:id_vendedor`;
         let result3 = await BD.Open(sql3, [id_vendedor], false);
         vendedor = [];
         result3.rows.map(vendedor_pedido => {//se obtiene el nombre del vendedor
@@ -154,24 +156,29 @@ router.post('/insertFactura',async (req,res)=>{
             let productsSchema2 =vendedor_pedido[0];
             vendedor.push(productsSchema2);
         })
-        console.log(vendedor);
+        console.log(vendedor);*/
         let valor_pedido =  parseInt(pedido);
-        let valor_vendedor=parseInt(vendedor);
-        /*
-        for para cargar los productos
-        for (var i=0; i< jsonObject.productos.length; i++)
-        {
-            sql4 = `insert into producto_pedido_cliente(id_producto,id_pedido,cantidad_producto) values (id_ese_producto,${valor_pedido},cantidad_de_eseproducto)`
-            await BD.Open(sql4, [datos productos], true);
-        }
+        //let valor_vendedor=parseInt(vendedor);
         
-        */ 
-        sql5 = `insert into pago (tipo_pago,estado,id_pedido) values ('TRAJETA CREDITO','PAGADO',${valor_pedido})`;
+        //for para cargar los productos
+        for (let i=0; i < productos.length; i++) {
+            const producto = productos[i];
+            console.log(producto['id_producto'], producto['cantidad']);
+            sql4 = `insert into producto_pedido_cliente(id_producto,id_pedido,cantidad_producto) 
+            values (${producto['id_producto']},${valor_pedido},${producto['cantidad']})`; //aca vamos ,bien
+            sql10=sql4
+            console.log(sql10);
+            await BD.Open(sql10, [], true);
+        } 
+        sql5 = `insert into pago (tipo_pago,estado,id_pedido) values (:tipo_pago,'PAGADO',${valor_pedido})`;
         sql6=sql5;
-        await BD.Open(sql6, [], true);
-        sql7 = `insert into factura (fecha_compra,id_pedido,estado,vendedor) values (:fecha_compra,${valor_pedido},'EN PROCESO',${valor_vendedor})`;
+        await BD.Open(sql6, [tipo_pago], true);//aca vamos bien
+        let fechac= fecha_compra;
+        sql7 = `insert into factura (fecha_compra,id_pedido,estado,vendedor,codigo) 
+        values (TO_DATE('${fechac}','YYYY-MM-DD'),${valor_pedido},'HABILITADA',:id_vendedor,:codigo)`;
         sql8=sql7;
-        await BD.Open(sql8, [fecha_compra], true);
+        console.log(sql8);
+        await BD.Open(sql8, [id_vendedor,codigo], true);
         res.json({ "message": true });
         
       } catch (error) {
@@ -179,7 +186,8 @@ router.post('/insertFactura',async (req,res)=>{
         // expected output: ReferenceError: nonExistentFunction is not defined
         // Note - error messages will vary depending on browser
         res.json({ "message": "Algo ha salido mal" });
-      }    
+    }  
+
 })
 
 
