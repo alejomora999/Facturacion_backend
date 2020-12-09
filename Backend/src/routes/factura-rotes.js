@@ -139,5 +139,66 @@ router.post('/getDetalleFactura',async (req,res)=>{
     res.json(facturas);
 
 })
+router.delete("/disableFactura/:id_factura", async (req, res) => {
+    const { id_factura } = req.params;
+
+    sql = "update factura set state=0 where id_factura=:id_factura";
+
+    await BD.Open(sql, [id_factura], true);
+
+    res.json({ "message": true });
+})
+///isnsertar factura
+router.post('/insertFactura',async (req,res)=>{
+    const { id_cliente, id_vendedor,codigo, prodcutos, fecha_registro,fecha_compra } = req.body;
+    try {
+        sql = "INSERT INTO pedido_cliente (numero_productos,id_cliente) values (0,:id_cliente)";
+        await BD.Open(sql, [id_cliente], true);
+        sql2 = "select id_pedido from pedido_cliente where rownum=1 order by id_pedido desc";
+        let result2 = await BD.Open(sql2, [], false);
+        pedido = [];
+        result2.rows.map(pedido_cliente => {//se obtiene el id de pedido cliente
+            
+            let productsSchema =pedido_cliente[0];
+            pedido.push(productsSchema);
+        })
+        console.log(pedido);
+        sql3=`select persona.nombres||' '||persona.apellidos from persona,operador where  operador.id_persona=persona.id_persona and operador.id_persona=:id_vendedor`;
+        let result3 = await BD.Open(sql3, [id_vendedor], false);
+        vendedor = [];
+        result3.rows.map(vendedor_pedido => {//se obtiene el nombre del vendedor
+            
+            let productsSchema2 =vendedor_pedido[0];
+            vendedor.push(productsSchema2);
+        })
+        console.log(vendedor);
+        let valor_pedido =  parseInt(pedido);
+        let valor_vendedor=parseInt(vendedor);
+        /*
+        for para cargar los productos
+        for (var i=0; i< jsonObject.productos.length; i++)
+        {
+            sql4 = `insert into producto_pedido_cliente(id_producto,id_pedido,cantidad_producto) values (id_ese_producto,${valor_pedido},cantidad_de_eseproducto)`
+            await BD.Open(sql4, [datos productos], true);
+        }
+        
+        */ 
+        sql5 = `insert into pago (tipo_pago,estado,id_pedido) values ('TRAJETA CREDITO','PAGADO',${valor_pedido})`;
+        sql6=sql5;
+        await BD.Open(sql6, [], true);
+        sql7 = `insert into factura (fecha_compra,id_pedido,estado,vendedor) values (:fecha_compra,${valor_pedido},'EN PROCESO',${valor_vendedor})`;
+        sql8=sql7;
+        await BD.Open(sql8, [fecha_compra], true);
+        res.json({ "message": true });
+        
+      } catch (error) {
+        console.error(error);
+        // expected output: ReferenceError: nonExistentFunction is not defined
+        // Note - error messages will vary depending on browser
+        res.json({ "message": "Algo ha salido mal" });
+      }    
+})
+
+
 
 module.exports = router;
