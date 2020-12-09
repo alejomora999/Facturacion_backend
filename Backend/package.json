@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "export LD_LIBRARY_PATH=../instantclient_18_5 && nodemon src/index.js"
   },
   "keywords": [],
   "author": "",
