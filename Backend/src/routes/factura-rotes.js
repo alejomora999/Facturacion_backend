@@ -3,11 +3,11 @@ const router = Router();
 const BD = require('../config/configbd');
 
 const getFacturas = async (state='') => {
-    sql = `SELECT DISTINCT factura.id_factura, factura.codigo, factura.vendedor, 
-        UPPER(aux_o.nombre_completo) as vendedor,
+    sql = `SELECT DISTINCT factura.id_factura, factura.codigo, UPPER(aux_o.nombre_completo) as vendedor,
         UPPER(persona.nombres||' '||persona.apellidos) AS cliente,
         REPLACE(REPLACE(factura.state,1,'HABILITADA'), 0, 'ANULADA') AS estado, 
-        factura.fecha_compra AS fecha_registro, factura.fecha_compra AS fecha_compra, 
+        to_char(factura.fecha_compra, 'dd-mm-YYYY') AS fecha_registro, 
+        to_char(factura.fecha_compra, 'dd-mm-YYYY') AS fecha_compra, 
         (SELECT  sum((((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto))) 
             FROM cliente, persona, pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura 
             WHERE cliente.id_persona=persona.id_persona 
@@ -38,6 +38,7 @@ const getFacturas = async (state='') => {
     let result = await BD.Open(sql, [], false);
     let facturas = [];
     result.rows.map(factura => {
+        // console.log(typeof factura[5])
         let productsSchema = {
             "id_factura": factura[0],
             "codigo": factura[1],
