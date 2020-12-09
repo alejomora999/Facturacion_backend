@@ -73,7 +73,12 @@ router.get('/getAllClientes', async (req, res) => { //Información para obtener 
         console.log(productsSchema);
         logins.push(productsSchema);
         })
-        res.json(logins);
+        if (Object.entries(logins).length === 0 ) {
+            res.json({message: "NO hay coincidencias"});
+        } else {
+            res.json(logins);
+        }
+        
         
     } catch (error) {
         console.error(error);
