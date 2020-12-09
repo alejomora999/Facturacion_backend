@@ -123,7 +123,7 @@ router.delete("/deleteProduct/:id_producto", async (req, res) => {
 
     await BD.Open(sql, [id_producto], true);
 
-    res.json({ "msg": "Producto Deshabilitado" })
+    res.json({ "message": true });
 })
 
 router.get('/',async (req,res)=> {

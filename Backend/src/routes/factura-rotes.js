@@ -122,5 +122,14 @@ router.post('/getDetalleFactura',async (req,res)=>{
     res.json(facturas);
 
 })
+router.delete("/disableFactura/:id_factura", async (req, res) => {
+    const { id_factura } = req.params;
+
+    sql = "update factura set state=0 where id_factura=:id_factura";
+
+    await BD.Open(sql, [id_factura], true);
+
+    res.json({ "message": true });
+})
 
 module.exports = router;
