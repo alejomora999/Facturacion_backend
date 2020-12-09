@@ -134,7 +134,6 @@ router.delete("/disableFactura/:id_factura", async (req, res) => {
 ///isnsertar factura
 router.post('/insertFactura',async (req,res)=>{
     const { id_cliente, id_vendedor,codigo, prodcutos, fecha_registro,fecha_compra } = req.body;
-    await BD.Open(sql8, [fecha_compra], true);
     try {
         sql = "INSERT INTO pedido_cliente (numero_productos,id_cliente) values (0,:id_cliente)";
         await BD.Open(sql, [id_cliente], true);
@@ -172,6 +171,7 @@ router.post('/insertFactura',async (req,res)=>{
         await BD.Open(sql6, [], true);
         sql7 = `insert into factura (fecha_compra,id_pedido,estado,vendedor) values (:fecha_compra,${valor_pedido},'EN PROCESO',${valor_vendedor})`;
         sql8=sql7;
+        await BD.Open(sql8, [fecha_compra], true);
         res.json({ "message": true });
         
       } catch (error) {
@@ -181,4 +181,7 @@ router.post('/insertFactura',async (req,res)=>{
         res.json({ "message": "Algo ha salido mal" });
       }    
 })
+
+
+
 module.exports = router;
