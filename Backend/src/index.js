@@ -9,6 +9,7 @@ const FacturaRoutes = require('./routes/factura-rotes');
 const loginRoutes = require('./routes/login-rotes');
 const productoRoutes = require('./routes/producto-route');
 const clienteRoutes = require('./routes/cliente-route');
+const operadorRoutes = require('./routes/operador-route');
 //settings
 app.set('port', 3010);
 
@@ -23,6 +24,7 @@ app.use(FacturaRoutes);
 app.use(loginRoutes);
 app.use(productoRoutes);
 app.use(clienteRoutes);
+app.use(operadorRoutes);
 
 //run
 app.listen(app.get('port'), () => {
