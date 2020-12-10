@@ -3,21 +3,14 @@ const router = Router();
 const BD = require('../config/configbd');
 
 const getFacturas = async (state='') => {
+    let where_statement = state ? `AND factura.state=${state}` : '';
+    
     sql = `SELECT DISTINCT factura.id_factura, factura.codigo, UPPER(aux_o.nombre_completo) as vendedor,
         UPPER(persona.nombres||' '||persona.apellidos) AS cliente,
-        REPLACE(REPLACE(factura.state,1,'HABILITADA'), 0, 'ANULADA') AS estado, 
+        REPLACE(REPLACE(factura.state,1,'HABILITADA'), 0, 'ANULADA') AS estado,
         to_char(factura.fecha_compra, 'dd-mm-YYYY') AS fecha_registro, 
-        to_char(factura.fecha_compra, 'dd-mm-YYYY') AS fecha_compra, 
-        (SELECT  sum((((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto))) 
-            FROM cliente, persona, pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura 
-            WHERE cliente.id_persona=persona.id_persona 
-            AND pedido_cliente.id_cliente=cliente.id_cliente 
-            AND pedido_cliente.id_pedido=factura.id_pedido 
-            AND pedido_cliente.id_pedido=pago.id_pedido 
-            AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
-            AND producto_pedido_cliente.id_producto=producto.id 
-            AND producto.id_categoria=categoria.id_categoria
-        ) AS TOTAL_SUMA_TOTAL 
+        to_char(factura.fecha_compra, 'dd-mm-YYYY') AS fecha_compra,
+        SUM ((((categoria.iva/100)*producto.precio_unidad)+producto.precio_unidad)*producto_pedido_cliente.cantidad_producto) AS total
         FROM cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura, 
             (SELECT p.nombres||' '||p.apellidos AS nombre_completo, TO_CHAR(o.ID_OPERADOR) AS id_operador
                 FROM operador o, persona p WHERE o.ID_PERSONA = p.ID_PERSONA 
@@ -29,12 +22,12 @@ const getFacturas = async (state='') => {
         AND pedido_cliente.id_pedido=pago.id_pedido 
         AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
         AND producto_pedido_cliente.id_producto=producto.id 
-        AND producto.id_categoria=categoria.id_categoria
+        AND producto.id_categoria=categoria.id_categoria ${where_statement}
+        GROUP BY factura.id_factura, factura.codigo, aux_o.nombre_completo, UPPER(persona.nombres||' '||persona.apellidos),
+            factura.state, factura.fecha_compra
+        ORDER BY factura.id_factura DESC
         `;
-    if (state !== '') {
-        sql += `AND factura.state=${state}`;
-    }
-    
+    console.log(sql);
     let result = await BD.Open(sql, [], false);
     let facturas = [];
     result.rows.map(factura => {
@@ -145,7 +138,7 @@ router.delete("/disableFactura/:id_factura", async (req, res) => {
 })
 ///isnsertar factura
 router.post('/insertFactura',async (req,res)=>{
-    const { id_cliente, id_vendedor,codigo, productos, fecha_registro,fecha_compra,tipo_pago } = req.body;
+    const { id_cliente, id_vendedor,codigo, productos, fecha_registro, fecha_compra,tipo_pago } = req.body;
     
     try {
         sql = "INSERT INTO pedido_cliente (numero_productos,id_cliente) values (0,:id_cliente)";
