@@ -97,7 +97,22 @@ router.post('/getCabeceraFactura',async (req,res)=>{
 
 router.post('/getDetalleFactura',async (req,res)=>{
     const { id_factura } = req.body;
-    sql = "  SELECT producto.nombre, '$'||producto.precio_unidad, producto_pedido_cliente.cantidad_producto,'$'||(producto.precio_unidad*producto_pedido_cliente.cantidad_producto) AS subtotal ,categoria.iva||'%' AS iva,'$'||(((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto)) AS TOTAL_PRODUCTO from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria AND factura.id_factura=:id_factura";
+    sql = `SELECT producto.nombre, 
+        producto.codigo, producto.precio_unidad, producto_pedido_cliente.cantidad_producto,
+        (producto.precio_unidad*producto_pedido_cliente.cantidad_producto) AS subtotal ,
+        categoria.iva||'%' AS iva,
+        ((categoria.iva/100)*producto.precio_unidad) AS valor_iva,
+        (((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto)) AS TOTAL_PRODUCTO 
+        FROM cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura 
+        WHERE cliente.id_persona=persona.id_persona 
+            AND pedido_cliente.id_cliente=cliente.id_cliente 
+            AND pedido_cliente.id_pedido=factura.id_pedido 
+            AND pedido_cliente.id_pedido=pago.id_pedido 
+            AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
+            AND producto_pedido_cliente.id_producto=producto.id 
+            AND producto.id_categoria=categoria.id_categoria 
+            AND factura.id_factura=:id_factura
+        `;
     let result = await BD.Open(sql, [id_factura], false);
    
     facturas = [];
@@ -105,12 +120,14 @@ router.post('/getDetalleFactura',async (req,res)=>{
     result.rows.map(factura => {//recorre cada objeto del arreglo
         
         let productsSchema = {
-            "Nombre": factura[0],
-            "Precio": factura[1],
-            "Cantidad": factura[2],
-            "Subtotal": factura[3],
-            "IVA": factura[4],
-            "valor_total_Producto":factura[5]
+            "nombre": factura[0],
+            "codigo": factura[1],
+            "precio": factura[2],
+            "cantidad": factura[3],
+            "subtotal": factura[4],
+            "iva": factura[5],
+            "valor_iva": parseFloat(factura[6].toFixed(2)),
+            "valor_total_Producto": parseFloat(factura[7].toFixed(2))
         }   
         facturas.push(productsSchema);
     })
