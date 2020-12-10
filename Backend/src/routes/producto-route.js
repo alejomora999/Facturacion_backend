@@ -6,8 +6,9 @@ const { errorReturn } = require('./utils');
 
 // State es el valor para buscar productos activos o inactivos. Por defecto es 1 para buscar los productos activos
 const getAllProductosInventario = async (state=1) => {
-    const sql = `SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, p.codigo, i.cantidad_disponible  
+    const sql = `SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, p.codigo, i.cantidad_disponible, c.iva  
         FROM INVENTARIO i INNER JOIN PRODUCTO p ON i.ID_PRODUCTO = p.ID
+        INNER JOIN categoria c ON p.ID_CATEGORIA = c.ID_CATEGORIA
         WHERE p.state=:state ORDER BY p.id DESC`;
 
     const results = await BD.Open(sql, [state], false);
@@ -22,6 +23,7 @@ const getAllProductosInventario = async (state=1) => {
             "codigo": producto[5],
             "existencias": producto[6],
             "estado": "Activo",
+            "iva": producto[7]/100
         }
 
     });
