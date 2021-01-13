@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "export LD_LIBRARY_PATH=../instantclient_18_5 && nodemon src/index.js"
+    "start": "node src/index.js",
+    "dev": "export LD_LIBRARY_PATH=../instantclient_18_5 export ENV=DEV && nodemon src/index.js",
+    "prod": "export LD_LIBRARY_PATH=../instantclient_18_5 export ENV=PROD PORT=8080 && nodemon src/index.js"
   },
   "keywords": [],
   "author": "",

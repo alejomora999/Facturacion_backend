@@ -10,11 +10,25 @@ cns = {
 cns_gcp = {
     user: "hr",
     password: "oracle",
-    connectString: "35.193.213.152/XEPDB1",
+    connectString: "34.68.135.29/XEPDB1",
 }
 
+const env = process.env.ENV || 'DEV';
+
 async function Open(sql, binds, autoCommit) {
-    let cnn = await oracledb.getConnection(cns_gcp);
+    let cnn;
+    switch (env) {
+        case 'PROD':
+            console.log('running in PROD environment')
+            cnn = await oracledb.getConnection(cns_gcp);
+            break;
+        case 'DEV':
+            console.log('running in DEV environment')
+            cnn = await oracledb.getConnection(cns);
+        default:
+            cnn = await oracledb.getConnection(cns);
+            break;
+    }
     //let cnn = await oracledb.getConnection(cns);
     let result = await cnn.execute(sql, binds, { autoCommit });
     cnn.release();

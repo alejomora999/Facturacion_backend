@@ -11,7 +11,7 @@ const productoRoutes = require('./routes/producto-route');
 const clienteRoutes = require('./routes/cliente-route');
 const operadorRoutes = require('./routes/operador-route');
 //settings
-app.set('port', 3010);
+app.set('port', process.env.PORT || 3010);
 
 //middlewares
 app.use(morgan('dev')); //paso por morgan antes del llegar al end point
@@ -28,6 +28,6 @@ app.use(operadorRoutes);
 
 //run
 app.listen(app.get('port'), () => {
-    console.log('Server on Port 3010')
+    console.log(`Server on Port ${app.get('port')}`)
 })
 
