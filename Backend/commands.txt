@@ -1,10 +1,48 @@
 
 //Crear variable de entorno
 //export LD_LIBRARY_PATH=/opt/instantclient_18_5/
-export LD_LIBRARY_PATH=/home/adminvoxoni/18_C/instantclient_18_5/
+//export LD_LIBRARY_PATH=/home/adminvoxoni/18_C/instantclient_18_5/
 //Visualizar Variable de entorno
 echo $LD_LIBRARY_PATH
 
 
 //si en dado casoo les tira error de libai.so.1
 sudo apt-get install libaio1
+
+## Problemas en la instancia
+solucion.
+[oracle@instance-test-alejo ~]$ sqlplus / as sysdba;
+
+SQL*Plus: Release 18.0.0.0.0 - Production on Thu Nov 26 19:06:07 2020
+Version 18.4.0.0.0
+
+Copyright (c) 1982, 2018, Oracle.  All rights reserved.
+
+Connected to an idle instance.
+
+SQL> select status from v$instance; 
+select status from v$instance
+*
+ERROR at line 1:
+ORA-01034: ORACLE not available
+Process ID: 0
+Session ID: 0 Serial number: 0
+
+
+SQL> startup;
+ORACLE instance started.
+
+Total System Global Area 1191181104 bytes
+Fixed Size                  8895280 bytes
+Variable Size             436207616 bytes
+Database Buffers          738197504 bytes
+Redo Buffers                7880704 bytes
+Database mounted.
+Database opened.
+SQL> select status from v$instance; 
+
+STATUS
+------------
+OPEN
+
+SQL> exit

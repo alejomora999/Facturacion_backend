@@ -5,13 +5,14 @@ const BD = require('../config/configbd');
 const { errorReturn } = require('./utils');
 
 // State es el valor para buscar productos activos o inactivos. Por defecto es 1 para buscar los productos activos
-const getAllProductosInventario = async (state=1) => {
-    const sql = `SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, p.codigo, i.cantidad_disponible, c.iva  
+const getAllProductosInventario = async () => {
+    const sql = `SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, 
+        p.codigo, i.cantidad_disponible, c.iva, i.state  
         FROM INVENTARIO i INNER JOIN PRODUCTO p ON i.ID_PRODUCTO = p.ID
         INNER JOIN categoria c ON p.ID_CATEGORIA = c.ID_CATEGORIA
-        WHERE p.state=:state ORDER BY p.id DESC`;
+        ORDER BY p.id DESC`;
 
-    const results = await BD.Open(sql, [state], false);
+    const results = await BD.Open(sql, [], false);
     
     const productos = results.rows.map(producto => {//recorre cada objeto del arreglo
         return {
@@ -22,10 +23,9 @@ const getAllProductosInventario = async (state=1) => {
             "id_categoria": producto[4],
             "codigo": producto[5],
             "existencias": producto[6],
-            "estado": "Activo",
+            "estado": producto[8] === 1 ? "Activo" : "Deshabilitado",
             "iva": producto[7]/100
         }
-
     });
 
     return productos;
@@ -73,6 +73,48 @@ router.post(CREATEPRODUCT, async (req, res) => { //post cifrar
         response = errorReturn(CREATEPRODUCT, error);
     }
     res.json(response);
-})
+});
+
+//UPDATE
+router.put("/updateProduct", async (req, res) => {
+    const { id_producto,nombre, descripcion, precio_unidad, id_categoria } = req.body;
+
+    sql = "update producto set nombre=:nombre, descripcion=:descripcion, precio_unidad=:precio_unidad, id_categoria=:id_categoria where id=:id_producto";
+
+    await BD.Open(sql, [nombre, descripcion, precio_unidad,id_categoria,id_producto], true);
+
+    res.status(200).json({
+        
+        "id_producto": id_producto,
+        "nombre": nombre,
+        "descripcion": descripcion,
+        "precio_unidad": precio_unidad,
+        "id_categoria": id_categoria
+    })
+
+});
+
+const actualizarEstado = async (state = 1, id_producto) => {
+    const sql = `UPDATE inventario SET state=:state WHERE id_producto=:id_producto`;
+    const r = await BD.Open(sql, [state,id_producto], true);
+    console.log('yei', r);
+    return {
+        "message": 'ok',
+    };
+};
+
+//UPDATE
+router.put("/deshabilitarProducto", async (req, res) => {
+    const { id_producto  } = req.body;
+    const response = await actualizarEstado(0, id_producto);
+    res.status(200).json(response);
+});
+
+//UPDATE
+router.put("/habilitarProducto", async (req, res) => {
+    const { id_producto  } = req.body;
+    const response = await actualizarEstado(1,id_producto);
+    res.status(200).json(response);
+});
 
 module.exports = router;

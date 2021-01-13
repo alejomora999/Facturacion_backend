@@ -45,6 +45,12 @@ ADD CONSTRAINT fk_producto_categoria
   select *from producto;
   select categoria.nombre from categoria,producto where producto.id_categoria=categoria.id_categoria and producto.state=1;
 
+----- Ajustes JUANC ----
+alter table inventario
+  add descripcion varchar(25) default 'producto registrado' not null;
+
+alter table factura
+  add codigo varchar(25) not null;
 ---------------SENTENCIAS YA PROBADAS EN ORACLE CENTOS 7
   /*
   select * from v$version where banner like 'Oracle%';
