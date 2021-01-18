@@ -1,4 +1,5 @@
 const oracledb = require('oracledb');
+const SECRETS = require('./secrets_manager');
 
 cns = {
     user: "test",
@@ -19,7 +20,8 @@ async function Open(sql, binds, autoCommit) {
     let cnn;
     switch (env) {
         case 'PROD':
-            console.log('running in PROD environment')
+            console.log('running in PROD environment');
+            console.log(`GCP username secret: ${SECRETS.username}`)
             cnn = await oracledb.getConnection(cns_gcp);
             break;
         case 'DEV':
