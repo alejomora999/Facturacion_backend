@@ -10,8 +10,8 @@ cns = {
 
 cns_gcp = {
     user: "hr",
-    password: "oracle",
-    connectString: "34.123.87.14/XEPDB1",
+    password: "oracle2021",
+    connectString: "35.224.188.248/XEPDB1",
 }
 
 const env = process.env.ENV || 'DEV';

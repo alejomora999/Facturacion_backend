@@ -1,3 +1,4 @@
+/*
 const {SecretManagerServiceClient} = require('@google-cloud/secret-manager');
 const client = new SecretManagerServiceClient();
 
@@ -9,3 +10,5 @@ const responsePayload = accesResponse.payload.data.toString('utf-8');
 console.info(`Payload ${responsePayload}`);
 
 exports.username = responsePayload;
+
+*/

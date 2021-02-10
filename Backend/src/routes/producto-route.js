@@ -73,6 +73,25 @@ router.post(CREATEPRODUCT, async (req, res) => { //post cifrar
         response = errorReturn(CREATEPRODUCT, error);
     }
     res.json(response);
-})
+});
+
+//UPDATE
+router.put("/updateProduct", async (req, res) => {
+    const { id_producto,nombre, descripcion, precio_unidad, id_categoria } = req.body;
+
+    sql = "update producto set nombre=:nombre, descripcion=:descripcion, precio_unidad=:precio_unidad, id_categoria=:id_categoria where id=:id_producto";
+
+    await BD.Open(sql, [nombre, descripcion, precio_unidad,id_categoria,id_producto], true);
+
+    res.status(200).json({
+        
+        "id_producto": id_producto,
+        "nombre": nombre,
+        "descripcion": descripcion,
+        "precio_unidad": precio_unidad,
+        "id_categoria": id_categoria
+    })
+
+});
 
 module.exports = router;

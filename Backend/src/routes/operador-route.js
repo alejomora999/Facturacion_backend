@@ -11,22 +11,23 @@ const getAllOperadores = async (rol='VENDEDOR') => {
             order by p.id_persona
         `;
     const result = await BD.Open(sql, [], false);
-    const clientes = result.rows.map((cliente) => ({
-        'id_vendedor': cliente[0],
-        'id_persona': cliente[1],
-        'nombres': cliente[2],
-        'apellidos': cliente[3],
-        'numero_identificacion': cliente[4],
-        'telefono': cliente[5],
-        'fecha_nacimiento': cliente[6],
+    console.log(result.rows);
+    const operadores = result.rows.map((operador) => ({
+        'id_vendedor': operador[0],
+        'id_persona': operador[1],
+        'nombres': operador[2],
+        'apellidos': operador[3],
+        'numero_identificacion': operador[4],
+        'telefono': operador[5],
+        'fecha_nacimiento': operador[6],
     }));
-    return clientes;
+    return operadores;
 }
 
 //READ clientes
 router.get('/getVendedores', async (req, res) => { //get y post => nombre apellido js sincrono
-    const clientes = await getAllOperadores();
-    res.json(clientes);
+    const vendedores = await getAllOperadores();
+    res.json(vendedores);
 });
 
 module.exports = router;
