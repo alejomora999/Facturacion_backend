@@ -2,11 +2,14 @@ const { Router } = require('express');
 const router = Router();
 const BD = require('../config/configbd');
 
+const { exec } = require("child_process");
+
 
 //traer todas las cateogrtias
 router.get('/getCategorias', async (req, res) => { //get y post => nombre apellido js sincrono
     const products=await getObtener();
     res.json(products);
+   
 })
 
 //INSERT CATEGORIA
