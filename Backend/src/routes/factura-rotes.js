@@ -1,7 +1,8 @@
 const { Router } = require('express');
 const router = Router();
 const BD = require('../config/configbd');
-const { exec } = require("child_process")
+
+const { exec } = require("child_process");
 //READ products
 router.get('/getFactura', async (req, res) => { //get y post => nombre apellido js sincrono
     //sql = "SELECT nombres||' '||apellidos from persona WHERE STATE=1";
@@ -22,77 +23,70 @@ router.get('/getFactura', async (req, res) => { //get y post => nombre apellido 
             AND pedido_cliente.id_pedido=pago.id_pedido 
             AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
             AND producto_pedido_cliente.id_producto=producto.id 
-            AND producto.id_categoria=categoria.id_categoria`;
+            AND producto.id_categoria=categoria.id_categoria`});
 
-    //nombre,descripcion,precio_unidad,id_categoria
-    let result = await BD.Open(sql, [], false);
-   
-    facturas = [];
 
-    result.rows.map(factura => {//recorre cada objeto del arreglo
-        
-        let productsSchema = {
-            "codigo": factura[0],
-            "vendedor": factura[1],
-            "cliente": factura[2],
-            "estado": factura[3],
-            "fecha_registro": factura[4],
-            "fecha_compra": factura[5],
-            "valor_total":factura[6]
-        }   
-        facturas.push(productsSchema);
-    })
-    res.json(facturas);
-})
-router.get('/getFacturaHabilitada', async (req, res) => { //get y post => nombre apellido js sincrono
-    //sql = "SELECT nombres||' '||apellidos from persona WHERE STATE=1";
-    sql = "SELECT DISTINCT factura.id_factura,factura.vendedor,persona.nombres||' '||persona.apellidos AS cliente,REPLACE(factura.state,1,'HABILITADA') AS estado,factura.fecha_compra AS fecha_registro,factura.fecha_compra AS fecha_compra,(SELECT  '$'||sum((((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto))) from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria) AS TOTAL_SUMA_TOTAL   from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria AND factura.state=1";
-
-    //nombre,descripcion,precio_unidad,id_categoria
-    let result = await BD.Open(sql, [], false);
-   
-    facturas = [];
-
-    result.rows.map(factura => {//recorre cada objeto del arreglo
-        
-        let productsSchema = {
-            "codigo": factura[0],
-            "vendedor": factura[1],
-            "cliente": factura[2],
-            "estado": factura[3],
-            "fecha_registro": factura[4],
-            "fecha_compra": factura[5],
-            "valor_total":factura[6]
-        }   
-        facturas.push(productsSchema);
-    })
-    res.json(facturas);
-})
-router.get('/getFacturaAnulada', async (req, res) => { //get y post => nombre apellido js sincrono
-    //sql = "SELECT nombres||' '||apellidos from persona WHERE STATE=1";
-    sql = "SELECT DISTINCT factura.id_factura,factura.vendedor,persona.nombres||' '||persona.apellidos AS cliente,REPLACE(factura.state,0,'ANULADA') AS estado,factura.fecha_compra AS fecha_registro,factura.fecha_compra AS fecha_compra,(SELECT  '$'||sum((((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto))) from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria) AS TOTAL_SUMA_TOTAL   from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria AND factura.state=0";
-
-    //nombre,descripcion,precio_unidad,id_categoria
-    let result = await BD.Open(sql, [], false);
-   
-    facturas = [];
-
-    result.rows.map(factura => {//recorre cada objeto del arreglo
-        
-        let productsSchema = {
-            "codigo": factura[0],
-            "vendedor": factura[1],
-            "cliente": factura[2],
-            "estado": factura[3],
-            "fecha_registro": factura[4],
-            "fecha_compra": factura[5],
-            "valor_total":factura[6]
-        }   
-        facturas.push(productsSchema);
-    })
-    res.json(facturas);
+const getFacturas = async (state='') => {
+    let where_statement = state ? `AND factura.state=${state}` : '';
     
-})
+    sql = `SELECT DISTINCT factura.id_factura, factura.codigo, UPPER(aux_o.nombre_completo) as vendedor,
+        UPPER(persona.nombres||' '||persona.apellidos) AS cliente,
+        REPLACE(REPLACE(factura.state,1,'HABILITADA'), 0, 'ANULADA') AS estado,
+        to_char(factura.fecha_compra, 'dd-mm-YYYY') AS fecha_registro, 
+        to_char(factura.fecha_compra, 'dd-mm-YYYY') AS fecha_compra,
+        SUM ((((categoria.iva/100)*producto.precio_unidad)+producto.precio_unidad)*producto_pedido_cliente.cantidad_producto) AS total
+        FROM cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura, 
+            (SELECT p.nombres||' '||p.apellidos AS nombre_completo, TO_CHAR(o.ID_OPERADOR) AS id_operador
+                FROM operador o, persona p WHERE o.ID_PERSONA = p.ID_PERSONA 
+            ) aux_o
+        WHERE cliente.id_persona=persona.id_persona
+        AND factura.vendedor = aux_o.id_operador
+        AND pedido_cliente.id_cliente=cliente.id_cliente 
+        AND pedido_cliente.id_pedido=factura.id_pedido 
+        AND pedido_cliente.id_pedido=pago.id_pedido 
+        AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
+        AND producto_pedido_cliente.id_producto=producto.id 
+        AND producto.id_categoria=categoria.id_categoria ${where_statement}
+        GROUP BY factura.id_factura, factura.codigo, aux_o.nombre_completo, UPPER(persona.nombres||' '||persona.apellidos),
+            factura.state, factura.fecha_compra
+        ORDER BY factura.id_factura DESC
+        `;
+    console.log(sql);
+    let result = await BD.Open(sql, [], false);
+    let facturas = [];
+    result.rows.map(factura => {
+        // console.log(typeof factura[5])
+        let productsSchema = {
+            "id_factura": factura[0],
+            "codigo": factura[1],
+            "vendedor": factura[2],
+            "cliente": factura[3],
+            "estado": factura[4],
+            "fecha_registro": factura[5],
+            "fecha_compra": factura[6],
+            "valor_total":factura[7]
+        }
+        facturas.push(productsSchema);
+    });
+    return facturas;
+};
+
+//READ products
+router.get('/getFactura', async (req, res) => { //get y post => nombre apellido js sincrono
+    const facturas = await getFacturas();
+    res.json(facturas);
+});
+
+router.get('/getFacturaHabilitada', async (req, res) => { //get y post => nombre apellido js sincrono
+    const facturas = await getFacturas('1');
+    res.json(facturas);
+});
+
+router.get('/getFacturaAnulada', async (req, res) => { //get y post => nombre apellido js sincrono
+    const facturas = await getFacturas('0');
+    res.json(facturas);    
+});
+
 router.post('/getCabeceraFactura',async (req,res)=>{
     const { id_factura } = req.body;
     sql = "SELECT DISTINCT factura.id_factura,factura.vendedor,persona.nombres||' '||persona.apellidos AS cliente,REPLACE(REPLACE(factura.state,1,'HABILITADA'),0,'ANULADA') AS estado,factura.fecha_compra AS fecha_registro,factura.fecha_compra AS fecha_compra,(SELECT  '$'||sum((((categoria.iva/100))*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto)))  from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria) AS TOTAL_IVA,(SELECT  '$'||sum((((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto)))  from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria) AS TOTAL_SUMA_TOTAL  from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria AND factura.id_factura=:id_factura";
@@ -120,7 +114,22 @@ router.post('/getCabeceraFactura',async (req,res)=>{
 
 router.post('/getDetalleFactura',async (req,res)=>{
     const { id_factura } = req.body;
-    sql = "  SELECT producto.nombre, '$'||producto.precio_unidad, producto_pedido_cliente.cantidad_producto,'$'||(producto.precio_unidad*producto_pedido_cliente.cantidad_producto) AS subtotal ,categoria.iva||'%' AS iva,'$'||(((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto)) AS TOTAL_PRODUCTO from cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura where cliente.id_persona=persona.id_persona AND pedido_cliente.id_cliente=cliente.id_cliente AND pedido_cliente.id_pedido=factura.id_pedido AND pedido_cliente.id_pedido=pago.id_pedido AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido AND producto_pedido_cliente.id_producto=producto.id AND producto.id_categoria=categoria.id_categoria AND factura.id_factura=:id_factura";
+    sql = `SELECT producto.nombre, 
+        producto.codigo, producto.precio_unidad, producto_pedido_cliente.cantidad_producto,
+        (producto.precio_unidad*producto_pedido_cliente.cantidad_producto) AS subtotal ,
+        categoria.iva||'%' AS iva,
+        ((categoria.iva/100)*producto.precio_unidad) AS valor_iva,
+        (((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto)) AS TOTAL_PRODUCTO 
+        FROM cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura 
+        WHERE cliente.id_persona=persona.id_persona 
+            AND pedido_cliente.id_cliente=cliente.id_cliente 
+            AND pedido_cliente.id_pedido=factura.id_pedido 
+            AND pedido_cliente.id_pedido=pago.id_pedido 
+            AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
+            AND producto_pedido_cliente.id_producto=producto.id 
+            AND producto.id_categoria=categoria.id_categoria 
+            AND factura.id_factura=:id_factura
+        `;
     let result = await BD.Open(sql, [id_factura], false);
    
     facturas = [];
@@ -128,12 +137,14 @@ router.post('/getDetalleFactura',async (req,res)=>{
     result.rows.map(factura => {//recorre cada objeto del arreglo
         
         let productsSchema = {
-            "Nombre": factura[0],
-            "Precio": factura[1],
-            "Cantidad": factura[2],
-            "Subtotal": factura[3],
-            "IVA": factura[4],
-            "valor_total_Producto":factura[5]
+            "nombre": factura[0],
+            "codigo": factura[1],
+            "precio": factura[2],
+            "cantidad": factura[3],
+            "subtotal": factura[4],
+            "iva": factura[5],
+            "valor_iva": parseFloat(factura[6].toFixed(2)),
+            "valor_total_Producto": parseFloat(factura[7].toFixed(2))
         }   
         facturas.push(productsSchema);
     })
@@ -151,7 +162,7 @@ router.delete("/disableFactura/:id_factura", async (req, res) => {
 })
 ///isnsertar factura
 router.post('/insertFactura',async (req,res)=>{
-    const { id_cliente, id_vendedor,codigo, productos, fecha_registro,fecha_compra,tipo_pago } = req.body;
+    const { id_cliente, id_vendedor,codigo, productos, fecha_registro, fecha_compra,tipo_pago } = req.body;
     
     try {
         sql = "INSERT INTO pedido_cliente (numero_productos,id_cliente) values (0,:id_cliente)";

@@ -6,8 +6,9 @@ const { errorReturn } = require('./utils');
 
 // State es el valor para buscar productos activos o inactivos. Por defecto es 1 para buscar los productos activos
 const getAllProductosInventario = async (state=1) => {
-    const sql = `SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, p.codigo, i.cantidad_disponible  
+    const sql = `SELECT p.id, p.nombre , p.descripcion, p.precio_unidad, p.id_categoria, p.codigo, i.cantidad_disponible, c.iva  
         FROM INVENTARIO i INNER JOIN PRODUCTO p ON i.ID_PRODUCTO = p.ID
+        INNER JOIN categoria c ON p.ID_CATEGORIA = c.ID_CATEGORIA
         WHERE p.state=:state ORDER BY p.id DESC`;
 
     const results = await BD.Open(sql, [state], false);
@@ -22,6 +23,7 @@ const getAllProductosInventario = async (state=1) => {
             "codigo": producto[5],
             "existencias": producto[6],
             "estado": "Activo",
+            "iva": producto[7]/100
         }
 
     });
@@ -71,6 +73,25 @@ router.post(CREATEPRODUCT, async (req, res) => { //post cifrar
         response = errorReturn(CREATEPRODUCT, error);
     }
     res.json(response);
-})
+});
+
+//UPDATE
+router.put("/updateProduct", async (req, res) => {
+    const { id_producto,nombre, descripcion, precio_unidad, id_categoria } = req.body;
+
+    sql = "update producto set nombre=:nombre, descripcion=:descripcion, precio_unidad=:precio_unidad, id_categoria=:id_categoria where id=:id_producto";
+
+    await BD.Open(sql, [nombre, descripcion, precio_unidad,id_categoria,id_producto], true);
+
+    res.status(200).json({
+        
+        "id_producto": id_producto,
+        "nombre": nombre,
+        "descripcion": descripcion,
+        "precio_unidad": precio_unidad,
+        "id_categoria": id_categoria
+    })
+
+});
 
 module.exports = router;
