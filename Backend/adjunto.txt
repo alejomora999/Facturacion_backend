@@ -1,0 +1,8 @@
+adjunto.txt
+commands.txt
+consultas
+correo.sh
+node_modules
+package.json
+package-lock.json
+src

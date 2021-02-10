@@ -9,8 +9,8 @@ cns = {
 
 cns_gcp = {
     user: "hr",
-    password: "oracle",
-    connectString: "35.193.213.152/XEPDB1",
+    password: "oracle2021",
+    connectString: "35.224.188.248/XEPDB1",
 }
 
 async function Open(sql, binds, autoCommit) {
