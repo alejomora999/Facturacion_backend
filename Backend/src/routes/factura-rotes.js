@@ -2,7 +2,8 @@ const { Router } = require('express');
 const router = Router();
 const BD = require('../config/configbd');
 const { exec } = require("child_process");
-/*
+
+
 router.get('/getFactura', async (req, res) => { //get y post => nombre apellido js sincrono
     //sql = "SELECT nombres||' '||apellidos from persona WHERE STATE=1";
     sql = `SELECT DISTINCT factura.id_factura, factura.vendedor, 
@@ -49,7 +50,7 @@ router.get('/getFactura', async (req, res) => { //get y post => nombre apellido 
             AND producto_pedido_cliente.id_producto=producto.id 
             AND producto.id_categoria=categoria.id_categoria`});
 
-*/
+
 const getFacturas = async (state='') => {
     let where_statement = state ? `AND factura.state=${state}` : '';
     
