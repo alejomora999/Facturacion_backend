@@ -113,7 +113,7 @@ router.put("/deshabilitarProducto", async (req, res) => {
 //UPDATE
 router.put("/habilitarProducto", async (req, res) => {
     const { id_producto  } = req.body;
-    const response = await actualizarEstado(id_producto);
+    const response = await actualizarEstado(1,id_producto);
     res.status(200).json(response);
 });
 
