@@ -208,7 +208,19 @@ router.get('/getPDF', async (req, res) => { //get y post => nombre apellido js s
     
     res.json("exito");
 })
+router.post('/FacturaPDF', async (req, res) => { //get y post => nombre apellido js sincrono
+    //sql = "SELECT nombres||' '||apellidos from persona WHERE STATE=1";
+    const { id_factura } = req.body;
+    sql = `BEGIN PR_ReporteFactura(:id_factura); END;`;
 
+    //nombre,descripcion,precio_unidad,id_categoria
+    let result = await BD.Open(sql, [id_factura], false);
+   
+    //facturas = [];
+
+    
+    res.json("PDF generado con exito");
+})
 
 router.get('/getCorreo', async (req, res) => { //get y post => nombre apellido js sincrono
     
