@@ -3,54 +3,6 @@ const router = Router();
 const BD = require('../config/configbd');
 const { exec } = require("child_process");
 
-
-router.get('/getFactura', async (req, res) => { //get y post => nombre apellido js sincrono
-    //sql = "SELECT nombres||' '||apellidos from persona WHERE STATE=1";
-    sql = `SELECT DISTINCT factura.id_factura, factura.vendedor, 
-            persona.nombres||' '||persona.apellidos AS cliente,REPLACE(REPLACE(factura.state,1,'HABILITADA'), 0, 'ANULADA') AS estado, 
-            factura.fecha_compra AS fecha_registro, factura.fecha_compra AS fecha_compra, 
-            (SELECT  '$'||sum((((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto))) 
-        FROM cliente, persona, pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura 
-        WHERE cliente.id_persona=persona.id_persona 
-            AND pedido_cliente.id_cliente=cliente.id_cliente 
-            AND pedido_cliente.id_pedido=factura.id_pedido 
-            AND pedido_cliente.id_pedido=pago.id_pedido 
-            AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
-            AND producto_pedido_cliente.id_producto=producto.id 
-            AND producto.id_categoria=categoria.id_categoria) AS TOTAL_SUMA_TOTAL FROM cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura WHERE cliente.id_persona=persona.id_persona 
-            AND pedido_cliente.id_cliente=cliente.id_cliente 
-            AND pedido_cliente.id_pedido=factura.id_pedido 
-            AND pedido_cliente.id_pedido=pago.id_pedido 
-            AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
-            AND producto_pedido_cliente.id_producto=producto.id 
-            AND producto.id_categoria=categoria.id_categoria`
-});
-
-
-
-//READ products
-router.get('/getFactura', async (req, res) => { //get y post => nombre apellido js sincrono
-    //sql = "SELECT nombres||' '||apellidos from persona WHERE STATE=1";
-    sql = `SELECT DISTINCT factura.id_factura, factura.vendedor, 
-            persona.nombres||' '||persona.apellidos AS cliente,REPLACE(REPLACE(factura.state,1,'HABILITADA'), 0, 'ANULADA') AS estado, 
-            factura.fecha_compra AS fecha_registro, factura.fecha_compra AS fecha_compra, 
-            (SELECT  '$'||sum((((categoria.iva/100)+1)*(producto.precio_unidad*producto_pedido_cliente.cantidad_producto))) 
-        FROM cliente, persona, pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura 
-        WHERE cliente.id_persona=persona.id_persona 
-            AND pedido_cliente.id_cliente=cliente.id_cliente 
-            AND pedido_cliente.id_pedido=factura.id_pedido 
-            AND pedido_cliente.id_pedido=pago.id_pedido 
-            AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
-            AND producto_pedido_cliente.id_producto=producto.id 
-            AND producto.id_categoria=categoria.id_categoria) AS TOTAL_SUMA_TOTAL FROM cliente, persona,pedido_cliente, pago, producto_pedido_cliente, producto, categoria, factura WHERE cliente.id_persona=persona.id_persona 
-            AND pedido_cliente.id_cliente=cliente.id_cliente 
-            AND pedido_cliente.id_pedido=factura.id_pedido 
-            AND pedido_cliente.id_pedido=pago.id_pedido 
-            AND pedido_cliente.id_pedido=producto_pedido_cliente.id_pedido 
-            AND producto_pedido_cliente.id_producto=producto.id 
-            AND producto.id_categoria=categoria.id_categoria`});
-
-
 const getFacturas = async (state='') => {
     let where_statement = state ? `AND factura.state=${state}` : '';
     
