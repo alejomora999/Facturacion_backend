@@ -237,5 +237,22 @@ router.get('/getCorreo', async (req, res) => { //get y post => nombre apellido j
     });
     res.json("Email enviado");
 })
+router.get('/getCorreoMasivo', async (req, res) => { //get y post => nombre apellido js sincrono
+    
 
+    //nombre,descripcion,precio_unidad,id_categoria
+    
+    exec("sh /home/correos/envio_masivo.sh", (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+    });
+    res.json("Email enviado");
+})
 module.exports = router;
