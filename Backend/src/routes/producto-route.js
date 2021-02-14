@@ -23,7 +23,7 @@ const getAllProductosInventario = async () => {
             "id_categoria": producto[4],
             "codigo": producto[5],
             "existencias": producto[6],
-            "estado": producto[8],
+            "estado": producto[8] === 1 ? "Activo" : "Deshabilitado",
             "iva": producto[7]/100
         }
     });
