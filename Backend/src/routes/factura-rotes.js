@@ -216,14 +216,19 @@ router.post('/FacturaPDF', async (req, res) => { //get y post => nombre apellido
 
     const sql = `BEGIN PR_ReporteFactura(:id_factura); END;`;
     await BD.Open(sql, [id_factura], false);
-
+    console.log('reporte generado..');
     const response = await axios.get('http://35.224.188.248:8080/uploadFileToBucket').then(response => {
         return response.data;
+    }).catch(error => {
+        console.log(`Error subiendo el archivo al bucket: ${error}`);
+        return null;
     });
+
+    console.log(response);
     
     if (response.uploaded) {
-        const filename = 'factura_ABC_2021-02-14-21-23-37.pdf';
-        await GCP_UTILS.downloadFile(filename);
+        const filename = response.filename;
+        await GCP_UTILS.downloadFile(filename).catch(console.error);
         res.download(filename);
     } else {
         res.json({ error: "No se ha podido construir el PDF de la factura" });
