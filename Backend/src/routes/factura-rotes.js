@@ -30,7 +30,7 @@ const getFacturas = async (state = '') => {
             factura.state, factura.fecha_compra
         ORDER BY factura.id_factura DESC
         `;
-    console.log(sql);
+    
     let result = await BD.Open(sql, [], false);
     let facturas = [];
     result.rows.map(factura => {
