@@ -253,9 +253,15 @@ router.get('/getCorreo', async (req, res) => { //get y post => nombre apellido j
 router.get('/getCorreoMasivo', async (req, res) => { //get y post => nombre apellido js sincrono
 
 
-    //nombre,descripcion,precio_unidad,id_categoria
+    const response = await axios.get('http://35.224.188.248:8080/getCorreoMasivo').then(response => {
+       console.log("Correo enviado");
+       res.json("Email enviado");
+    }).catch(error => {
+        console.log(`Error enviando correo masivo: ${error}`);
+        return null;
+    });
 
-    exec("sh /home/correos/envio_masivo.sh", (error, stdout, stderr) => {
+   /* exec("sh /home/correos/envio_masivo.sh", (error, stdout, stderr) => {
         if (error) {
             console.log(`error: ${error.message}`);
             return;
@@ -266,6 +272,6 @@ router.get('/getCorreoMasivo', async (req, res) => { //get y post => nombre apel
         }
         console.log(`stdout: ${stdout}`);
     });
-    res.json("Email enviado");
+    res.json("Email enviado");*/
 })
 module.exports = router;
