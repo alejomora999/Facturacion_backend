@@ -30,7 +30,7 @@ const getFacturas = async (state = '') => {
             factura.state, factura.fecha_compra
         ORDER BY factura.id_factura DESC
         `;
-    
+
     let result = await BD.Open(sql, [], false);
     let facturas = [];
     result.rows.map(factura => {
@@ -225,7 +225,7 @@ router.post('/FacturaPDF', async (req, res) => { //get y post => nombre apellido
     });
 
     console.log(response);
-    
+
     if (response.uploaded) {
         const filename = response.filename;
         await GCP_UTILS.downloadFile(filename).catch(console.error);
@@ -254,44 +254,70 @@ router.get('/getCorreoMasivo', async (req, res) => { //get y post => nombre apel
 
 
     const response = await axios.get('http://35.224.188.248:8080/getCorreoMasivo').then(response => {
-       console.log("Correo enviado");
-       res.json({message: "Email enviado"});
+        console.log("Correo enviado");
+        res.json({ message: "Email enviado" });
     }).catch(error => {
         console.log(`Error enviando correo masivo: ${error}`);
         return null;
     });
 
-   /* exec("sh /home/correos/envio_masivo.sh", (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
-    res.json("Email enviado");*/
+    /* exec("sh /home/correos/envio_masivo.sh", (error, stdout, stderr) => {
+         if (error) {
+             console.log(`error: ${error.message}`);
+             return;
+         }
+         if (stderr) {
+             console.log(`stderr: ${stderr}`);
+             return;
+         }
+         console.log(`stdout: ${stdout}`);
+     });
+     res.json("Email enviado");*/
 })
 router.get('/getProductoMasVendido', async (req, res) => { //get y post => nombre apellido js sincrono
 
-
+    let reporteGenerado = false;
     const response = await axios.get('http://35.224.188.248:8080/getProductoMasVendido').then(response => {
-       console.log("Reporte Enviado");
-       res.json("Reporte de productos más vendidos creado");
+        console.log("Reporte Enviado");
+        reporteGenerado = true;
     }).catch(error => {
         console.log(`Error creando reporte de producto mas vendido: ${error}`);
         return null;
     });
+
+    if (reporteGenerado) {
+        const uploadResponse = await axios.get('http://35.224.188.248:8080/uploadReportToBucket?folder=productos_mas_vendidos')
+            .then(response => {
+                return response.data;
+            }).catch(error => {
+                console.log(`Error subiendo el archivo al bucket: ${error}`);
+                return null;
+            });
+
+        console.log(uploadResponse);
+
+        if (uploadResponse.uploaded) {
+            const filename = uploadResponse.filename;
+            await GCP_UTILS.downloadFile(filename).catch(console.error);
+            res.download(filename);
+        } else {
+            res.json({ error: "No se ha podido construir el PDF del reporte" });
+        }
+    }
 })
 
 router.get('/getVendedorMasFacturas', async (req, res) => { //get y post => nombre apellido js sincrono
 
 
     const response = await axios.get('http://35.224.188.248:8080/getVendedorMasFacturas').then(response => {
-       console.log("Reporte Enviado");
-       res.json("Reporte de vendedor con  más facturas creado");
+        console.log("Reporte Enviado");
+        // const response = await axios.get('http://35.224.188.248:8080/uploadReportToBucket?folder=vendedor_mas_facturas').then(response => {
+        //     return response.data;
+        // }).catch(error => {
+        //     console.log(`Error subiendo el archivo al bucket: ${error}`);
+        //     return null;
+        // });
+        res.json("Reporte de vendedor con  más facturas creado");
     }).catch(error => {
         console.log(`Error creando reporte de vendedor con mas facturas: ${error}`);
         return null;
