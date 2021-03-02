@@ -308,19 +308,33 @@ router.get('/getProductoMasVendido', async (req, res) => { //get y post => nombr
 
 router.get('/getVendedorMasFacturas', async (req, res) => { //get y post => nombre apellido js sincrono
 
-
+    let reporteGenerado = false;
     const response = await axios.get('http://35.224.188.248:8080/getVendedorMasFacturas').then(response => {
         console.log("Reporte Enviado");
-        // const response = await axios.get('http://35.224.188.248:8080/uploadReportToBucket?folder=vendedor_mas_facturas').then(response => {
-        //     return response.data;
-        // }).catch(error => {
-        //     console.log(`Error subiendo el archivo al bucket: ${error}`);
-        //     return null;
-        // });
-        res.json("Reporte de vendedor con  más facturas creado");
+        reporteGenerado = true;
     }).catch(error => {
         console.log(`Error creando reporte de vendedor con mas facturas: ${error}`);
         return null;
     });
+
+    if (reporteGenerado) {
+        const uploadResponse = await axios.get('http://35.224.188.248:8080/uploadReportToBucket?folder=vendedor_mas_facturas')
+            .then(response => {
+                return response.data;
+            }).catch(error => {
+                console.log(`Error subiendo el archivo al bucket: ${error}`);
+                return null;
+            });
+
+        console.log(uploadResponse);
+
+        if (uploadResponse.uploaded) {
+            const filename = uploadResponse.filename;
+            await GCP_UTILS.downloadFile(filename).catch(console.error);
+            res.download(filename);
+        } else {
+            res.json({ error: "No se ha podido construir el PDF del reporte" });
+        }
+    }
 })
 module.exports = router;
