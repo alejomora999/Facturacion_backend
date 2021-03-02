@@ -274,4 +274,27 @@ router.get('/getCorreoMasivo', async (req, res) => { //get y post => nombre apel
     });
     res.json("Email enviado");*/
 })
+router.get('/getProductoMasVendido', async (req, res) => { //get y post => nombre apellido js sincrono
+
+
+    const response = await axios.get('http://35.224.188.248:8080/getProductoMasVendido').then(response => {
+       console.log("Reporte Enviado");
+       res.json("Reporte de productos más vendidos creado");
+    }).catch(error => {
+        console.log(`Error creando reporte de producto mas vendido: ${error}`);
+        return null;
+    });
+})
+
+router.get('/getVendedorMasFacturas', async (req, res) => { //get y post => nombre apellido js sincrono
+
+
+    const response = await axios.get('http://35.224.188.248:8080/getVendedorMasFacturas').then(response => {
+       console.log("Reporte Enviado");
+       res.json("Reporte de vendedor con  más facturas creado");
+    }).catch(error => {
+        console.log(`Error creando reporte de vendedor con mas facturas: ${error}`);
+        return null;
+    });
+})
 module.exports = router;
