@@ -49,9 +49,14 @@ DELETE FROM PRODUCTO p WHERE id = 1;
 SELECT * FROM PERSONA p ;
 
 INSERT INTO PERSONA VALUES (2, 'Yurany', 'Morales', '10102256713', '3231454', CURRENT_TIMESTAMP, 1);
+INSERT INTO PERSONA VALUES (3, 'Alejandro', 'Morales', '10102256713', '3231454', CURRENT_TIMESTAMP, 1);
+INSERT INTO PERSONA VALUES (4, 'Camilo', 'Reyes', '1010225712', '3231456', CURRENT_TIMESTAMP, 1);
 
 SELECT * FROM CLIENTE c ;
+UPDATE cliente set id_persona = 3 where id_cliente = 1;
+commit;
 INSERT INTO cliente values (1,CURRENT_TIMESTAMP, 2, 1);
+INSERT INTO cliente values (2,CURRENT_TIMESTAMP, 4, 1, 'juancsr@protonmail.com');
 
 SELECT * FROM operador;
 INSERT INTO operador values (1,'VENDEDOR', 1, 1,'juancsr', 'juancsr');

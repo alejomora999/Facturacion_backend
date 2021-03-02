@@ -255,7 +255,7 @@ router.get('/getCorreoMasivo', async (req, res) => { //get y post => nombre apel
 
     const response = await axios.get('http://35.224.188.248:8080/getCorreoMasivo').then(response => {
        console.log("Correo enviado");
-       res.json("Email enviado");
+       res.json({message: "Email enviado"});
     }).catch(error => {
         console.log(`Error enviando correo masivo: ${error}`);
         return null;
